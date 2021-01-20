@@ -1,0 +1,428 @@
+'''''*import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+#!pip install python-mnist
+from mnist import MNIST
+
+
+
+def initialise_weights_bias(layer_dims,input_features,Parameters):
+    u=layer_dims[0]
+    Parameters["W1"]=np.random.randn(u,input_features) * .001
+    Parameters["b1"]=np.random.randn(u,1)
+
+
+    for i in range (2,layer_dims.shape[0]+1):
+        Parameters["W" + str(i)] = np.random.randn(layer_dims[i-1], layer_dims[i-2]) * .001
+        Parameters["b" + str(i)] = np.random.randn(layer_dims[i-1], 1)
+
+def relu(temp):
+    return np.maximum(temp,0)
+
+def softmax(x):
+    den=np.sum(x,axis=1)
+    den=den.reshape(10,1)
+    exp=np.exp(den)
+
+    exp_sum=np.sum(exp)
+    exp=exp/exp_sum
+
+    return exp
+
+def forward_propagation(layer_dims,Parameters,X,Y,cache,num_of_iterations):
+    learning_rate = 0.001;
+    for e in range(1,6):
+        correct = 0
+        count = 0
+        pred_list = []
+        act_list = []
+        err_list = []
+        #np.random.shuffle(X)
+        for i in range(num_of_iterations*X.shape[0]):
+            i = i % (X.shape[0] - 1)
+            count=count+1
+
+            input = X[i]
+            for j in range(1,layer_dims.shape[0]):
+
+                #Regression
+                temp = np.dot(Parameters["W"+str(j)],input)+Parameters["b"+str(j)]
+
+                #Cache formation
+                apple = (input,Parameters["W"+str(j)],Parameters["b"+str(j)])
+
+                final = relu(temp)
+                finalApple = (final)
+
+                #Storing for future
+                cac=(apple,finalApple)
+                cache.append(cac)
+
+                input=final
+
+            temp=np.dot(Parameters["W"+str(layer_dims.shape[0])],input)+Parameters["b"+str(layer_dims.shape[0])]
+            final=softmax(temp)
+
+
+            #Loss calculation
+            act = Y[i]
+            actual=np.zeros((10,1))
+            actual[act]=1
+
+
+
+            #act = (np.argmax(actual))
+            pred = (np.argmax(final))
+
+            act_list.append(act)
+            pred_list.append(pred)
+
+            if (act == pred):
+                correct = correct + 1
+
+            dZ = (final - actual)
+
+            dW = np.sum(dZ*temp)
+            db = np.sum(dZ, axis=1, keepdims=True)
+
+
+            Parameters["W" + str(layer_dims.shape[0])] = Parameters["W"+str(layer_dims.shape[0])]-learning_rate*dW
+            Parameters["b" + str(layer_dims.shape[0])] = Parameters["b"+str(layer_dims.shape[0])]-learning_rate*db
+
+
+            for k in range(layer_dims.shape[0]-1,0,-1):
+                caches = cache[k-1]
+                A_prev , W , b = caches[0]
+                final = caches[1]
+
+                final[final < 0] = 0
+                final[np.where(final > 0)] = 1
+                dZ = final
+
+                dW = np.dot(dZ, A_prev.T)
+                db = np.sum(dZ, axis=1, keepdims=True)
+
+                Parameters["W" + str(k)] = Parameters["W" + str(k)] - learning_rate * dW
+                Parameters["b" + str(k)] = Parameters["b" + str(k)] - learning_rate * db
+
+
+
+            err_list.append(correct/count)
+
+
+
+        #lest.append(list(range(1, len(err_list)+1)),err_list)
+        plt.plot(list(range(1, len(err_list)+1)),err_list,label='Learning Rate ' + str(round(learning_rate,3)))
+        plt.legend()
+        plt.ylabel('Accuracy')
+        plt.xlabel('Number of samples processed')
+        #plt.ylabel(err_list)
+        #plt.show()
+        learning_rate=learning_rate+0.02;
+
+    plt.show()
+
+
+layer_dims = np.array([64,32,10])
+
+number_of_samples=15000
+number_of_iterations=2
+Parameters = {}
+input_features = 28
+cache = []
+
+##Reading data2
+exchange_rates = pd.read_csv("/content/drive/My Drive/Colab Notebooks/mnist_train.csv", error_bad_lines=False)
+a = exchange_rates.to_records()
+d = exchange_rates.reset_index().values
+
+df_features = d[:number_of_samples, 1:785]
+df_label = d[:number_of_samples, 1]
+#print(exchange_rates)
+
+e=df_features
+e=np.reshape(e,(number_of_samples,28,28))
+e=e/128
+num=df_label
+
+
+
+
+
+##Starting forward propagation
+initialise_weights_bias(layer_dims,input_features,Parameters)
+forward_propagation(layer_dims,Parameters,e,num,cache,number_of_iterations)
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from mnist import MNIST
+
+
+def initialise_weights_bias(layer_dims, input_features, Parameters):
+    u = layer_dims[0]
+    Parameters["W1"] = np.random.randn(u, input_features) * .001
+    Parameters["b1"] = np.random.randn(u, 1)
+
+    for i in range(2, layer_dims.shape[0] + 1):
+        Parameters["W" + str(i)] = np.random.randn(layer_dims[i - 1], layer_dims[i - 2]) * .001
+        Parameters["b" + str(i)] = np.random.randn(layer_dims[i - 1], 1)
+
+
+def relu(temp):
+    return np.maximum(temp, 0)
+
+
+def softmax(x):
+    den = np.sum(x, axis=1)
+    den = den.reshape(10, 1)
+    exp = np.exp(den)
+
+    exp_sum = np.sum(exp)
+    exp = exp / exp_sum
+
+    return exp
+
+
+def forward_propagation(layer_dims, Parameters, X, Y, cache, num_of_iterations):
+    learning_rate = 0.0001;
+    for e in range(1, 2):
+
+        initialise_weights_bias(layer_dims, 16, Parameters)
+        correct = 0
+        count = 0
+        pred_list = []
+        act_list = []
+        err_list = []
+        # np.random.shuffle(X)
+        for i in range(num_of_iterations * X.shape[0]):
+            i = i % (X.shape[0] - 1)
+            count = count + 1
+
+            input = X[i]
+            for j in range(1, layer_dims.shape[0]):
+                # Regression
+                temp = np.dot(Parameters["W" + str(j)], input) + Parameters["b" + str(j)]
+
+                # Cache formation
+                apple = (input, Parameters["W" + str(j)], Parameters["b" + str(j)])
+
+                final = relu(temp)
+                finalApple = (final)
+
+                # Storing for future
+                cac = (apple, finalApple)
+                cache.append(cac)
+
+                input = final
+
+            temp = np.dot(Parameters["W" + str(layer_dims.shape[0])], input) + Parameters["b" + str(layer_dims.shape[0])]
+            final = softmax(temp)
+
+            # Loss calculation
+            actual = Y[i]
+            actual = actual.reshape(10, 1)
+
+            act = (np.argmax(actual))
+            pred = (np.argmax(final))
+
+            act_list.append(act)
+            pred_list.append(pred)
+
+            if (act == pred):
+                correct = correct + 1
+
+            dZ = (final - actual)
+
+            dW = np.sum(dZ * temp)
+            db = np.sum(dZ, axis=1, keepdims=True)
+
+            Parameters["W" + str(layer_dims.shape[0])] = Parameters["W" + str(layer_dims.shape[0])] - learning_rate * dW
+            Parameters["b" + str(layer_dims.shape[0])] = Parameters["b" + str(layer_dims.shape[0])] - learning_rate * db
+
+            for k in range(layer_dims.shape[0] - 1, 0, -1):
+                caches = cache[k - 1]
+                A_prev, W, b = caches[0]
+                final = caches[1]
+
+                final[final < 0] = 0
+                final[np.where(final > 0)] = 1
+                dZ = final
+
+                dW = np.dot(dZ, A_prev.T)
+                db = np.sum(dZ, axis=1, keepdims=True)
+
+                Parameters["W" + str(k)] = Parameters["W" + str(k)] - learning_rate * dW
+                Parameters["b" + str(k)] = Parameters["b" + str(k)] - learning_rate * db
+
+            err_list.append((correct*100)/count)
+        learning_rate = learning_rate + 0.005
+        #
+
+        # lest.append(list(range(1, len(err_list)+1)),err_list)
+        plt.plot(list(range(1, len(err_list) + 1)), err_list, label='Learning Rate ' + str(round(learning_rate, 3)))
+        plt.legend()
+        plt.ylabel('Accuracy')
+        plt.xlabel('Number of samples processed')
+        # plt.ylabel(err_list)
+        # plt.show()
+    plt.grid()
+    plt.show()
+
+
+layer_dims = np.array([256,16, 10])
+
+##Reading data
+exchange_rates = pd.read_csv("semeion.data", sep=" ")
+a = exchange_rates.to_records()
+d = exchange_rates.reset_index().values
+f = d[:, 1:257]
+num = d[:, 257:267]
+e = np.reshape(f, (d.shape[0], 16, 16))
+
+#print(e[1591])
+
+
+Parameters = {}
+input_features = 16
+cache = []
+
+##Starting forward propagation
+#for i in range(1,4):
+initialise_weights_bias(layer_dims, input_features, Parameters)
+forward_propagation(layer_dims, Parameters, e, num, cache, 10)'''
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from mnist import MNIST
+
+
+def initialise_weights_bias(layer_dims, input_features, Parameters):
+    u = layer_dims[0]
+    Parameters["W1"] = np.random.randn(u, input_features) * .001
+    Parameters["b1"] = np.random.randn(u, 1)
+
+    for i in range(2, layer_dims.shape[0] + 1):
+        Parameters["W" + str(i)] = np.random.randn(layer_dims[i - 1], layer_dims[i - 2]) * .001
+        Parameters["b" + str(i)] = np.random.randn(layer_dims[i - 1], 1)
+
+
+def relu(temp):
+    return np.maximum(temp, 0)
+
+
+
+
+def softmax(x):
+    den = np.sum(x, axis=1)
+    den = den.reshape(10, 1)
+    exp = np.exp(den)
+
+    exp_sum = np.sum(exp)
+    exp = exp / exp_sum
+
+    return exp
+
+
+def forward_propagation(layer_dims, Parameters, X, Y, cache, num_of_iterations):
+    learning_rate = .05;
+    for e in range(1, 2):
+        #learning_rate = learning_rate + 0.05;
+        initialise_weights_bias(layer_dims, 16, Parameters)
+        correct = 0
+        count = 0
+        pred_list = []
+        act_list = []
+        err_list = []
+        # np.random.shuffle(X)
+        for i in range(num_of_iterations * X.shape[0]):
+            i = i % (X.shape[0] - 1)
+            count = count + 1
+
+            input = X[i]
+            for j in range(1, layer_dims.shape[0]):
+                # Regression
+                temp = np.dot(Parameters["W" + str(j)], input) + Parameters["b" + str(j)]
+
+                # Cache formation
+                apple = (input, Parameters["W" + str(j)], Parameters["b" + str(j)])
+
+                final = relu(temp)
+                finalApple = (final)
+
+                # Storing for future
+                cac = (apple, finalApple)
+                cache.append(cac)
+
+                input = final
+
+            temp = np.dot(Parameters["W" + str(layer_dims.shape[0])], input) + Parameters[
+                "b" + str(layer_dims.shape[0])]
+            final = softmax(temp)
+
+            # Loss calculation
+            actual = Y[i]
+            actual = actual.reshape(10, 1)
+            dZ = (final - actual)
+
+            act = (np.argmax(actual))
+            pred = (np.argmax(final))
+
+            act_list.append(act)
+            pred_list.append(pred)
+
+            if (act == pred):
+                correct = correct + 1
+
+
+
+            dW = np.sum(dZ * temp)
+            db = dZ
+
+            Parameters["W" + str(layer_dims.shape[0])] = Parameters["W" + str(layer_dims.shape[0])] - learning_rate * dW
+            Parameters["b" + str(layer_dims.shape[0])] = Parameters["b" + str(layer_dims.shape[0])] - learning_rate * db
+
+            for k in range(layer_dims.shape[0] - 1, 0, -1):
+                caches = cache[k - 1]
+                A_prev, W, b = caches[0]
+                final = caches[1]
+
+                final[final < 0] = 0
+                final[np.where(final > 0)] = 1
+                dZ = final
+
+                dW = np.dot(dZ, A_prev.T)
+                db = np.sum(dZ, axis=1, keepdims=True)
+
+                Parameters["W" + str(k)] = Parameters["W" + str(k)] - learning_rate * dW
+                Parameters["b" + str(k)] = Parameters["b" + str(k)] - learning_rate * db
+
+            err_list.append(correct / count)
+
+        # lest.append(list(range(1, len(err_list)+1)),err_list)
+        plt.plot(list(range(1, len(err_list) + 1)), err_list, label='Learning Rate ' + str(round(learning_rate, 2)))
+        plt.legend()
+        plt.ylabel('Accuracy')
+        plt.xlabel('Number of samples processed')
+        # plt.ylabel(err_list)
+        # plt.show()
+        plt.grid()
+        plt.show()
+
+
+layer_dims = np.array([100, 16, 10])
+
+##Reading data
+exchange_rates = pd.read_csv("semeion.data", sep=" ")
+a = exchange_rates.to_records()
+d = exchange_rates.reset_index().values
+f = d[:, 1:257]
+num = d[:, 257:267]
+e = np.reshape(f, (d.shape[0], 16, 16))
+
+Parameters = {}
+input_features = 16
+cache = []
+
+##Starting forward propagation
+initialise_weights_bias(layer_dims, input_features, Parameters)
+forward_propagation(layer_dims, Parameters, e, num, cache, 5)
