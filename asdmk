@@ -362,6 +362,8 @@ def forward_propagation(layer_dims, Parameters, X, Y, cache, num_of_iterations):
             # Loss calculation
             actual = Y[i]
             actual = actual.reshape(10, 1)
+            print(final)
+            print(actual)
             dZ = (final - actual)
 
             act = (np.argmax(actual))
