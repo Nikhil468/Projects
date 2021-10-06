@@ -20,6 +20,8 @@ for name in os.listdir(directory):
         print(name.split('\\')[-1])
         if name.split('\\')[-1] in features:
           continue
+        
+        print("1")
 
         filename = directory + "\\" + name
         image = tf.keras.preprocessing.image.load_img(filename, target_size=(224, 224))
