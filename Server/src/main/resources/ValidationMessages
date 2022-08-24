@@ -1,0 +1,6 @@
+static final String successMessage = "User registered.";
+static final String failureMessage = "User registration failed.";
+static final int passwordMinLength = 9;
+static final String passwordCheckFailureMessage = "Password should contain a Lowercase,an Uppercase and a Special Character for better security.";
+static final String passwordLengthCheckFailureMessage = "Password should be minimum 9 characters.";
+email.notempty=Please provide valid email id.
